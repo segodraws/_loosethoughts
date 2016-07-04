@@ -1,18 +1,129 @@
-<!doctype html>
 <html>
-  <head>
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src='../src/sketch.js'></script>
-    <link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
-    <script type='text/javascript' src='sketch.test.js'></script>
-  </head>
-  <body>
-    <h1 id="qunit-header">Sketch.js Test Suite</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-  </body>
+<head>
+<div align="center">
+  <canvas height="500" id="myCanvas" style="border:2px solid black" width="500"><img src="http://i.imgur.com/lqnRp2t.jpg";></canvas><br />
+  <br />
+  <button onclick="javascript:drawImage();return false;">Clear Area</button>&nbsp; Line width : <select id="selWidth"><option value="1">1</option><option value="3">3</option><option value="5">5</option><option value="7">7</option><option selected="selected" value="9">9</option><option value="11">11</option></select> Draw or Erase? : <select id="selColor"><option value="black">Erase</option><option selected="selected" value="white">Draw</option></select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="javascript:cUndo();return false;">Undo</button><button onclick="javascript:cRedo();return false;">Redo</button></div>
+ <script type="text/javascript">
+        var mousePressed = false;
+        var lastX, lastY;
+        var ctx;
+
+function cPush() {
+    cStep++;
+    if (cStep < cPushArray.length) { cPushArray.length = cStep; }
+    cPushArray.push(document.getElementById('myCanvas').toDataURL());
+}
+function cUndo() {
+    if (cStep > 0) {
+        cStep--;
+        var canvasPic = new Image();
+        canvasPic.src = cPushArray[cStep];
+        canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
+    }
+}
+function cRedo() {
+    if (cStep < cPushArray.length-1) {
+        cStep++;
+        var canvasPic = new Image();
+        canvasPic.src = cPushArray[cStep];
+        canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
+    }
+}
+$(window).load(function () {InitThis()});
+
+        function InitThis() {
+            ctx = document.getElementById('myCanvas').getContext("2d");
+            $('#myCanvas').mousedown(function (e) {
+                mousePressed = true;
+                Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
+            });
+
+            $('#myCanvas').mousemove(function (e) {
+                if (mousePressed) {
+                    Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true);
+                }
+            });
+
+            $('#myCanvas').mouseup(function (e) {
+                if (mousePressed) {
+                    mousePressed = false;
+                    cPush();
+                }
+            });
+
+            $('#myCanvas').mouseleave(function (e) {
+                if (mousePressed) {
+                    mousePressed = false;
+                    cPush();
+                }
+            });
+            drawImage();
+        }
+
+        function drawImage() {
+            var image = new Image();
+            image.src = 'http://i.imgur.com/lqnRp2t.jpg';
+            $(image).load(function () {
+                ctx.drawImage(image, 0, 0, 500, 500);
+                cPush();
+            });
+        }
+
+        function Draw(x, y, isDown) {
+            if (isDown) {
+                ctx.beginPath();
+                ctx.strokeStyle = $('#selColor').val();
+                ctx.lineWidth = $('#selWidth').val();
+                ctx.lineJoin = "round";
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            lastX = x;
+            lastY = y;
+        }
+
+        var cPushArray = new Array();
+        var cStep = -1;
+
+        var cPushArray = new Array();
+var cStep = -1;
+var ctx;
+// ctx = document.getElementById('myCanvas').getContext("2d");
+ 
+function cPush() {
+    cStep++;
+    if (cStep < cPushArray.length) { cPushArray.length = cStep; }
+    cPushArray.push(document.getElementById('myCanvas').toDataURL());
+}
+function cUndo() {
+    if (cStep > 0) {
+        cStep--;
+        var canvasPic = new Image();
+        canvasPic.src = cPushArray[cStep];
+        canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
+    }
+}
+function cRedo() {
+    if (cStep < cPushArray.length-1) {
+        cStep++;
+        var canvasPic = new Image();
+        canvasPic.src = cPushArray[cStep];
+        canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
+    }
+}
+$(window).load(function () {InitThis()});
+    </script>
+
+</head>
+<body onload="InitThis();">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="canvasdraw.js"></script>
+     <div align="center">
+  <canvas height="0" id="myCanvas" style="border:0px solid black" width="0"></canvas><br />
+  <br />
+  
+</body>
 </html>
