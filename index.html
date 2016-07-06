@@ -1,130 +1,123 @@
-<!DOCTYPE html>
-<html>
-<head>
-<div align="center">
-  <canvas height="500" id="myCanvas" style="border:2px solid black" width="500"><img src="http://i.imgur.com/lqnRp2t.jpg";></canvas><br />
-  <br />
-  <button onclick="javascript:drawImage();return false;">Clear Area</button>&nbsp; Line width : <select id="selWidth"><option value="1">1</option><option value="3">3</option><option value="5">5</option><option value="7">7</option><option selected="selected" value="9">9</option><option value="11">11</option></select> Draw or Erase? : <select id="selColor"><option value="black">Erase</option><option selected="selected" value="white">Draw</option></select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="javascript:cUndo();return false;">Undo</button><button onclick="javascript:cRedo();return false;">Redo</button></div>
- <script type="text/javascript">
-        var mousePressed = false;
-        var lastX, lastY;
-        var ctx;
 
-function cPush() {
-    cStep++;
-    if (cStep < cPushArray.length) { cPushArray.length = cStep; }
-    cPushArray.push(document.getElementById('myCanvas').toDataURL());
-}
-function cUndo() {
-    if (cStep > 0) {
-        cStep--;
-        var canvasPic = new Image();
-        canvasPic.src = cPushArray[cStep];
-        canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
-    }
-}
-function cRedo() {
-    if (cStep < cPushArray.length-1) {
-        cStep++;
-        var canvasPic = new Image();
-        canvasPic.src = cPushArray[cStep];
-        canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
-    }
-}
-$(window).load(function () {InitThis()});
+<html lang="en"><head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>HTML 5 Canvas Draw</title>
+        <style>
+			html, body {
+			  width:  100%;
+			  height: 100%;
+			  margin: 0px;
+			}
+		</style>
+	</head>
+    <body>
 
-        function InitThis() {
-            ctx = document.getElementById('myCanvas').getContext("2d");
-            $('#myCanvas').mousedown(function (e) {
-                mousePressed = true;
-                Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false);
-            });
+        <canvas id="pad" width="1366" height="271">
+			<p>Not Supported</p>
+        </canvas>
 
-            $('#myCanvas').mousemove(function (e) {
-                if (mousePressed) {
-                    Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, true);
-                }
-            });
+    
+<script>
+	
+	var isMobile;
+	function isTouchDevice() {
+	   var el = document.createElement('div');
+	   el.setAttribute('ongesturestart', 'return;');
+	   return typeof el.ongesturestart === "function";
+	}
+	
+	isMobile = isTouchDevice();
+	
+		
+	if(window.addEventListener) {
+		window.addEventListener('load', function () {
+			var canvas, context, draw;
 
-            $('#myCanvas').mouseup(function (e) {
-                if (mousePressed) {
-                    mousePressed = false;
-                    cPush();
-                }
-            });
+			// Touch Events handlers
+			draw = {
+				started: false,
+				start: function(event) {
 
-            $('#myCanvas').mouseleave(function (e) {
-                if (mousePressed) {
-                    mousePressed = false;
-                    cPush();
-                }
-            });
-            drawImage();
-        }
+					context.beginPath();
+					if (isMobile){
+						context.moveTo(
+							event.originalEvent.touches[0].pagex,
+							event.originalEvent.touches[0].pageY
+						);
+					}else{
+						context.moveTo(
+							event.pageX - this.offsetLeft, 
+							event.pageY - this.offsetTop
+						);
+					}
+					this.started = true;
 
-        function drawImage() {
-            var image = new Image();
-            image.src = 'http://i.imgur.com/lqnRp2t.jpg';
-            $(image).load(function () {
-                ctx.drawImage(image, 0, 0, 500, 500);
-                cPush();
-            });
-        }
+				},
+				move: function(event) {
 
-        function Draw(x, y, isDown) {
-            if (isDown) {
-                ctx.beginPath();
-                ctx.strokeStyle = $('#selColor').val();
-                ctx.lineWidth = $('#selWidth').val();
-                ctx.lineJoin = "round";
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(x, y);
-                ctx.closePath();
-                ctx.stroke();
-            }
-            lastX = x;
-            lastY = y;
-        }
+					if (this.started) {
+						if(isMobile){
+							context.lineTo(
+								event.originalEvent.touches[0].pageX,
+								event.originalEvent.touches[0].pageY
+							);
+						}else{
+						
+							context.lineTo(
+								event.pageX - this.offsetLeft, 
+								event.pageY - this.offsetTop
+							);
+						}
+						context.lineWidth=10;
+						context.lineCap="round";
+						context.stroke();
+					}
 
-        var cPushArray = new Array();
-        var cStep = -1;
+				},
+				end: function(event) {
+					this.started = false;
+				}
+			};
 
-        var cPushArray = new Array();
-var cStep = -1;
-var ctx;
-// ctx = document.getElementById('myCanvas').getContext("2d");
- 
-function cPush() {
-    cStep++;
-    if (cStep < cPushArray.length) { cPushArray.length = cStep; }
-    cPushArray.push(document.getElementById('myCanvas').toDataURL());
-}
-function cUndo() {
-    if (cStep > 0) {
-        cStep--;
-        var canvasPic = new Image();
-        canvasPic.src = cPushArray[cStep];
-        canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
-    }
-}
-function cRedo() {
-    if (cStep < cPushArray.length-1) {
-        cStep++;
-        var canvasPic = new Image();
-        canvasPic.src = cPushArray[cStep];
-        canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); }
-    }
-}
-$(window).load(function () {InitThis()});
-    </script>
+			// Canvas & Context
+			canvas = document.getElementById('pad');
+			context = canvas.getContext('2d');
 
-</head>
-<body onload="InitThis();">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="canvasdraw.js"></script>
-     <div align="center">
-  <canvas height="0" id="myCanvas" style="border:0px solid black" width="0"></canvas><br />
-  <br />
-  
-</body>
-</html>
+			// Full Window Size Canvas
+			context.canvas.width = window.innerWidth;
+			context.canvas.height = window.innerHeight;
+			
+			context.font="30px Arial";
+			context.fillText("Start Drawing :-)", 10, 100);
+
+			// Events
+			canvas.addEventListener('touchstart', draw.start, false);
+			canvas.addEventListener('touchend', draw.end, false);
+			canvas.addEventListener('touchmove', draw.move, false);
+			canvas.addEventListener('mousedown', draw.start, false);
+			canvas.addEventListener('mousemove', draw.move, false);
+			canvas.addEventListener('mouseup', draw.end, false);
+
+		});
+
+		// Disable Page Move
+		document.body.addEventListener('touchmove',function(event){
+		  event.preventDefault();
+		},false);
+	}
+</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-35046479-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</body></html>
