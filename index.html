@@ -9,6 +9,15 @@
         var lastX, lastY;
         var ctx;
 
+//touch click helper
+function ($) {
+    $.fn.tclick = function (onclick) {
+        this.bind("touchstart", function (e) { onclick.call(this, e); e.stopPropagation(); e.preventDefault(); });
+        this.bind("click", function (e) { onclick.call(this, e); });   //substitute mousedown event for exact same result as touchstart         
+        return this;
+    };
+})(jQuery);
+
 function cPush() {
     cStep++;
     if (cStep < cPushArray.length) { cPushArray.length = cStep; }
@@ -92,15 +101,6 @@ $(window).load(function () {InitThis()});
 var cStep = -1;
 var ctx;
 // ctx = document.getElementById('myCanvas').getContext("2d");
-
-//touch click helper
-function ($) {
-    $.fn.tclick = function (onclick) {
-        this.bind("touchstart", function (e) { onclick.call(this, e); e.stopPropagation(); e.preventDefault(); });
-        this.bind("click", function (e) { onclick.call(this, e); });   //substitute mousedown event for exact same result as touchstart         
-        return this;
-    };
-})(jQuery);
 
 
 function cPush() {
